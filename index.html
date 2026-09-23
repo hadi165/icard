@@ -22,8 +22,6 @@
     --accent: #3b82f6;
     --accent-soft: rgba(59, 130, 246, .14);
     --green: #4caf50;
-    --notice-bg: #fcd34d;
-    --notice-text: #1e1e1e;
     --danger: #ef5350;
     --btn: #2c2c2c;
     --btn-hover: #343434;
@@ -43,8 +41,6 @@
     --accent: #3b82f6;
     --accent-soft: #eaf2ff;
     --green: #4caf50;
-    --notice-bg: #fcd34d;
-    --notice-text: #1e1e1e;
     --danger: #d33;
     --btn: #f4f5f7;
     --btn-hover: #e9ebef;
@@ -163,14 +159,7 @@
 
   .empty-ticket { color: var(--muted); padding: 22px 0; text-align: center; }
 
-  .notice {
-    display: flex; align-items: center; gap: 10px; margin: 18px 0;
-    background: var(--notice-bg); color: var(--notice-text);
-    border-radius: 8px; padding: 11px 16px; font-size: 13px;
-  }
-  .notice svg { flex: 0 0 auto; }
-
-  .status { text-align: center; color: var(--accent); font-weight: 700; margin: 26px 0 14px; }
+  .status { text-align: center; color: var(--accent); font-weight: 700; margin: 32px 0 14px; }
 
   .progress { height: 4px; border-radius: 4px; background: var(--green); width: 100%; }
 
@@ -211,7 +200,7 @@
 
   .table-note { margin: 10px 2px 0; font-size: 12px; color: var(--muted); }
 
-  .footer-actions { display: flex; gap: 10px; margin-top: 26px; }
+  .footer-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 26px; }
 
   /* ---------- modal ---------- */
   .modal {
@@ -253,12 +242,12 @@
     html, body { background: #fff !important; color: #000 !important; padding: 0; }
     .wrap { max-width: none; padding: 0; }
     .card, .table-wrap { background: #fff !important; border-color: #999 !important; box-shadow: none !important; }
-    .card-title, .row .k, .row .v, .success, .success .line2, .table-note, thead th, tbody td,
-    .order-head h1, .step, .link-row .k, .empty-ticket, .back-link { color: #000 !important; }
+    .card-title, .card-title .sub, .row .k, .row .v, .success, .success b, .success .line2,
+    .table-note, thead th, tbody td, .order-head h1, .step, .link-row .k,
+    .empty-ticket, .back-link { color: #000 !important; }
     .status { color: #000 !important; }
     .progress { background: #000 !important; height: 3px; }
     .step.done { color: #000 !important; }
-    .notice { background: #fff !important; color: #000 !important; border: 1px solid #000; }
     .link-row a { color: #000 !important; }
     a { text-decoration: none; }
   }
@@ -410,13 +399,6 @@
         <div class="card-title">تیکت‌های مربوط به سفارش</div>
         <p class="empty-ticket">تیکتی برای این سفارش ایجاد نشده است</p>
       </div>
-    </div>
-
-    <div class="notice">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/>
-      </svg>
-      <span>برای این سفارش، درخواست فاکتور رسمی‌ای صادر نگردیده‌ است.</span>
     </div>
 
     <p class="status">وضعیت سفارش: تمام شده</p>
