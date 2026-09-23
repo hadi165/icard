@@ -1,0 +1,955 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رسید سفارش — ایرانیکارت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root,
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #1e1e1e;
+    --card: #222;
+    --field: #2a2a2a;
+    --border: #3a3a3a;
+    --border-soft: #333;
+    --text: #d4d4d4;
+    --text-strong: #e9e9e9;
+    --muted: #8d8d8d;
+    --accent: #3b82f6;
+    --accent-soft: rgba(59, 130, 246, .14);
+    --green: #4caf50;
+    --notice-bg: #fcd34d;
+    --notice-text: #1e1e1e;
+    --danger: #ef5350;
+    --btn: #2c2c2c;
+    --btn-hover: #343434;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  }
+
+  html[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f3f4f6;
+    --card: #ffffff;
+    --field: #ffffff;
+    --border: #e2e5ea;
+    --border-soft: #eceef2;
+    --text: #333333;
+    --text-strong: #1f2329;
+    --muted: #6b7280;
+    --accent: #3b82f6;
+    --accent-soft: #eaf2ff;
+    --green: #4caf50;
+    --notice-bg: #fcd34d;
+    --notice-text: #1e1e1e;
+    --danger: #d33;
+    --btn: #f4f5f7;
+    --btn-hover: #e9ebef;
+    --shadow: 0 10px 30px rgba(16, 24, 40, .08);
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  body {
+    margin: 0;
+    padding: 0 0 48px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Vazirmatn, Tahoma, sans-serif;
+    font-size: 14px;
+    line-height: 1.9;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    max-width: 1180px; margin: 0 auto; padding: 14px 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--text-strong); font-size: 15px; }
+  .brand svg { color: var(--accent); }
+
+  .toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--btn); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 14px; font: inherit; font-size: 13px; cursor: pointer;
+  }
+  .toggle:hover { background: var(--btn-hover); }
+
+  /* ---------- input panel ---------- */
+  .panel {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px; margin-bottom: 18px;
+  }
+  .panel h2 { margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--text-strong); }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .field.full { grid-column: 1 / -1; }
+  .field > label { font-size: 13px; color: var(--muted); }
+
+  input, select {
+    width: 100%; background: var(--field); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 12px; font: inherit; font-size: 14px; outline: none;
+  }
+  input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  input.invalid, select.invalid { border-color: var(--danger); }
+  input::placeholder { color: var(--muted); opacity: .75; }
+  input:disabled, select:disabled { opacity: .5; cursor: not-allowed; }
+
+  .combo { display: flex; gap: 8px; }
+  .combo input { flex: 1 1 auto; min-width: 0; }
+  .combo select { flex: 0 0 108px; width: 108px; cursor: pointer; }
+
+  /* ---------- jalali date group ---------- */
+  .label-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .check { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .check input { width: auto; padding: 0; accent-color: var(--accent); cursor: pointer; }
+
+  .dt-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .dt-cell { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .dt-cap { font-size: 11px; color: var(--muted); }
+
+  .err { margin: 0; min-height: 18px; font-size: 12px; line-height: 18px; color: var(--danger); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .btn {
+    background: var(--btn); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 20px; font: inherit; font-size: 13px; cursor: pointer;
+  }
+  .btn:hover { background: var(--btn-hover); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.08); }
+
+  .hint {
+    border: 1px dashed var(--border); border-radius: 8px; padding: 26px 16px;
+    text-align: center; color: var(--muted); font-size: 14px;
+  }
+
+  /* ---------- receipt ---------- */
+  .order-head { margin: 4px 0 18px; }
+  .order-head h1 { margin: 0; font-size: 20px; font-weight: 700; color: var(--text-strong); }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 6px;
+    color: var(--muted); text-decoration: none; font-size: 13px;
+  }
+  .back-link:hover { color: var(--accent); }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 700; color: var(--text-strong);
+    padding-bottom: 12px; border-bottom: 1px solid var(--border-soft); margin-bottom: 6px;
+  }
+  .card-title .sub { font-size: 12px; font-weight: 400; color: var(--muted); }
+
+  .row {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    padding: 9px 0; border-bottom: 1px solid var(--border-soft);
+  }
+  .row:last-child { border-bottom: 0; }
+  .row .k { color: var(--muted); flex: 0 0 auto; }
+  .row .v { color: var(--text-strong); text-align: left; word-break: break-word; }
+
+  .empty-ticket { color: var(--muted); padding: 22px 0; text-align: center; }
+
+  .notice {
+    display: flex; align-items: center; gap: 10px; margin: 18px 0;
+    background: var(--notice-bg); color: var(--notice-text);
+    border-radius: 8px; padding: 11px 16px; font-size: 13px;
+  }
+  .notice svg { flex: 0 0 auto; }
+
+  .status { text-align: center; color: var(--accent); font-weight: 700; margin: 26px 0 14px; }
+
+  .progress { height: 4px; border-radius: 4px; background: var(--green); width: 100%; }
+
+  .steps {
+    display: flex; justify-content: space-between; gap: 10px;
+    margin-top: 12px; font-size: 12px; color: var(--muted);
+  }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step.done { color: var(--green); }
+  .step svg { flex: 0 0 auto; }
+
+  .success { text-align: center; margin: 34px auto 10px; max-width: 760px; color: var(--text); }
+  .success b { color: var(--text-strong); }
+  .success .line2 { display: block; color: var(--muted); margin-top: 8px; font-size: 13px; }
+
+  .divider { border: 0; border-top: 1px solid var(--border-soft); margin: 26px 0 18px; }
+
+  .link-row { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 16px; }
+  .link-row .k { color: var(--muted); flex: 0 0 auto; }
+  .link-row a {
+    color: var(--accent); text-decoration: none; direction: ltr; unicode-bidi: embed;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .link-row a:hover { text-decoration: underline; }
+
+  .table-wrap {
+    border: 1px solid var(--border); border-radius: 8px; background: var(--card);
+    overflow-x: auto;
+  }
+  table { width: 100%; min-width: 680px; border-collapse: collapse; }
+  th, td { padding: 14px 16px; text-align: center; font-size: 13px; }
+  thead th { color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border-soft); }
+  tbody td { color: var(--text-strong); }
+  .details-link {
+    background: none; border: 0; padding: 0; margin-inline-start: 8px;
+    color: var(--accent); font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline;
+  }
+
+  .table-note { margin: 10px 2px 0; font-size: 12px; color: var(--muted); }
+
+  .footer-actions { display: flex; gap: 10px; margin-top: 26px; }
+
+  /* ---------- modal ---------- */
+  .modal {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, .6);
+    display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50;
+  }
+  .modal-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: var(--shadow); width: 100%; max-width: 440px; padding: 18px;
+  }
+  .modal-box h3 { margin: 0 0 12px; font-size: 15px; color: var(--text-strong); }
+  .modal-box .row .v { text-align: left; }
+  .modal-box .total-row { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 12px; font-weight: 700; }
+
+  /* ---------- toast ---------- */
+  .toast {
+    position: fixed; bottom: 24px; inset-inline-start: 24px;
+    background: var(--green); color: #fff; border-radius: 8px; padding: 10px 18px;
+    font-size: 13px; opacity: 0; transform: translateY(12px); pointer-events: none;
+    transition: opacity .22s ease, transform .22s ease; z-index: 60;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .cards { grid-template-columns: 1fr; }
+    .steps { flex-direction: column; gap: 8px; }
+  }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .dt-grid { grid-template-columns: 1fr 1fr; }
+    .actions .btn, .footer-actions .btn { flex: 1 1 auto; }
+  }
+
+  /* ---------- print ---------- */
+  @media print {
+    .no-print { display: none !important; }
+    html, body { background: #fff !important; color: #000 !important; padding: 0; }
+    .wrap { max-width: none; padding: 0; }
+    .card, .table-wrap { background: #fff !important; border-color: #999 !important; box-shadow: none !important; }
+    .card-title, .row .k, .row .v, .success, .success .line2, .table-note, thead th, tbody td,
+    .order-head h1, .step, .link-row .k, .empty-ticket, .back-link { color: #000 !important; }
+    .status { color: #000 !important; }
+    .progress { background: #000 !important; height: 3px; }
+    .step.done { color: #000 !important; }
+    .notice { background: #fff !important; color: #000 !important; border: 1px solid #000; }
+    .link-row a { color: #000 !important; }
+    a { text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar no-print">
+  <div class="brand">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/>
+    </svg>
+    <span>ایرانیکارت</span>
+  </div>
+  <button type="button" class="toggle" id="themeToggle" aria-live="polite">حالت روز</button>
+</header>
+
+<main class="wrap">
+
+  <!-- ===================== input panel ===================== -->
+  <section class="panel no-print">
+    <h2>اطلاعات سفارش</h2>
+    <form id="orderForm" autocomplete="off" novalidate>
+      <div class="grid">
+        <div class="field">
+          <label for="productPrice">قیمت محصول</label>
+          <div class="combo">
+            <input id="productPrice" inputmode="decimal" placeholder="۲۳" aria-describedby="priceErr">
+            <select id="currency" aria-label="واحد ارز">
+              <option value="EUR">یورو</option>
+              <option value="USD">دلار</option>
+            </select>
+          </div>
+          <p class="err" id="priceErr" role="alert"></p>
+        </div>
+
+        <div class="field">
+          <label for="exchangeRate">قیمت ارز در زمان خرید (ریال)</label>
+          <input id="exchangeRate" inputmode="numeric" placeholder="۱,۹۶۲,۶۱۵" aria-describedby="rateErr">
+          <p class="err" id="rateErr" role="alert"></p>
+        </div>
+
+        <div class="field">
+          <label for="orderNumber">شماره سفارش</label>
+          <input id="orderNumber" inputmode="numeric" placeholder="خالی بماند = تولید خودکار">
+        </div>
+
+        <!-- ---------- زمان سفارش ---------- -->
+        <div class="field full">
+          <label id="orderTimeLabel">زمان</label>
+          <div class="dt-grid" role="group" aria-labelledby="orderTimeLabel">
+            <div class="dt-cell">
+              <span class="dt-cap">روز</span>
+              <input id="oDay" inputmode="numeric" aria-label="روز سفارش">
+            </div>
+            <div class="dt-cell">
+              <span class="dt-cap">ماه</span>
+              <select id="oMonth" aria-label="ماه سفارش"></select>
+            </div>
+            <div class="dt-cell">
+              <span class="dt-cap">سال</span>
+              <input id="oYear" inputmode="numeric" aria-label="سال سفارش">
+            </div>
+            <div class="dt-cell">
+              <span class="dt-cap">ساعت (۲۴ ساعته)</span>
+              <input id="oTime" inputmode="numeric" placeholder="۱۲:۲۰" aria-label="ساعت سفارش">
+            </div>
+          </div>
+          <p class="err" id="oDateErr" role="alert"></p>
+        </div>
+
+        <!-- ---------- تاریخ انجام سفارش ---------- -->
+        <div class="field full">
+          <div class="label-row">
+            <label id="doneTimeLabel">تاریخ انجام سفارش</label>
+            <label class="check"><input type="checkbox" id="sameAsOrder" checked> مانند زمان سفارش</label>
+          </div>
+          <div class="dt-grid" role="group" aria-labelledby="doneTimeLabel">
+            <div class="dt-cell">
+              <span class="dt-cap">روز</span>
+              <input id="cDay" inputmode="numeric" aria-label="روز انجام سفارش">
+            </div>
+            <div class="dt-cell">
+              <span class="dt-cap">ماه</span>
+              <select id="cMonth" aria-label="ماه انجام سفارش"></select>
+            </div>
+            <div class="dt-cell">
+              <span class="dt-cap">سال</span>
+              <input id="cYear" inputmode="numeric" aria-label="سال انجام سفارش">
+            </div>
+            <div class="dt-cell">
+              <span class="dt-cap">ساعت (۲۴ ساعته)</span>
+              <input id="cTime" inputmode="numeric" placeholder="۱۸:۴۷" aria-label="ساعت انجام سفارش">
+            </div>
+          </div>
+          <p class="err" id="cDateErr" role="alert"></p>
+        </div>
+
+        <div class="field">
+          <label for="title">عنوان</label>
+          <input id="title" placeholder="پرداخت درکلیه سایت های بین المللی">
+        </div>
+
+        <div class="field">
+          <label for="type">نوع</label>
+          <input id="type" placeholder="خرید اینترنتی">
+        </div>
+
+        <div class="field">
+          <label for="productUrl">لینک محصول</label>
+          <input id="productUrl" dir="ltr" placeholder="https://example.com/checkout">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="printBtn">چاپ رسید</button>
+        <button type="button" class="btn" id="copyBtn">کپی</button>
+        <button type="button" class="btn" id="clearBtn">پاک کردن</button>
+      </div>
+    </form>
+  </section>
+
+  <p class="hint no-print" id="hint">برای مشاهده‌ی رسید، قیمت محصول و قیمت ارز در زمان خرید را وارد کنید.</p>
+
+  <!-- ===================== receipt ===================== -->
+  <section id="receipt" hidden>
+
+    <div class="order-head">
+      <h1>سفارش <span data-order></span></h1>
+      <a class="back-link" href="#" onclick="return false;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        بازگشت به سفارشات
+      </a>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-title">مشخصات سفارش <span class="sub">(شماره سفارش: <span data-order></span>)</span></div>
+        <div class="row"><span class="k">عنوان</span><span class="v" id="vTitle"></span></div>
+        <div class="row"><span class="k">نوع</span><span class="v" id="vType"></span></div>
+        <div class="row"><span class="k">زمان</span><span class="v" id="vDate"></span></div>
+        <div class="row"><span class="k">قیمت محصول</span><span class="v" id="vPrice"></span></div>
+        <div class="row"><span class="k">قیمت ارز در زمان خرید</span><span class="v" id="vRate"></span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">تیکت‌های مربوط به سفارش</div>
+        <p class="empty-ticket">تیکتی برای این سفارش ایجاد نشده است</p>
+      </div>
+    </div>
+
+    <div class="notice">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/>
+      </svg>
+      <span>برای این سفارش، درخواست فاکتور رسمی‌ای صادر نگردیده‌ است.</span>
+    </div>
+
+    <p class="status">وضعیت سفارش: تمام شده</p>
+
+    <div class="progress"></div>
+    <div class="steps">
+      <div class="step">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>
+        </svg>
+        مرحله‌ی اول: نیاز به تایید مدارک
+      </div>
+      <div class="step">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-3.2-6.9"/><path d="M21 3v5h-5"/>
+        </svg>
+        مرحله‌ی دوم: در حال پردازش
+      </div>
+      <div class="step">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>
+        </svg>
+        مرحله‌ی سوم: نیاز به اقدام کاربر
+      </div>
+      <div class="step">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>
+        </svg>
+        مرحله‌ی چهارم: در حال انجام
+      </div>
+      <div class="step done">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M8.2 12.3l2.6 2.6 5-5.2"/>
+        </svg>
+        مرحله‌ی پنجم: تمام شده
+      </div>
+    </div>
+
+    <p class="success">
+      سفارش شما با عنوان <b id="sTitle"></b> در تاریخ <b id="sDate"></b> با موفقیت انجام شده است.
+      <span class="line2">با ثبت امتیاز و بازخوردتان، در رشد و بهبود ایرانیکارت سهیم باشید.</span>
+    </p>
+
+    <hr class="divider">
+
+    <div class="link-row" id="linkRow" hidden>
+      <span class="k">لینک محصول:</span>
+      <a id="productLink" href="#" target="_blank" rel="noopener noreferrer"></a>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>مجموع هزینه خدمات (ریال)</th>
+            <th>مجموع هزینه خدمات به حروف</th>
+            <th>مبلغ پرداخت شده (ریال)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-total></td>
+            <td id="totalWords"></td>
+            <td>
+              <span data-total></span>
+              <button type="button" class="details-link no-print" id="detailsBtn">جزئیات</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">مبلغ نهایی شامل هزینه تبدیل ارز، کارمزد و موارد دیگر است.</p>
+
+    <div class="footer-actions no-print">
+      <button type="button" class="btn">تکرار سفارش</button>
+      <button type="button" class="btn">درخواست استرداد ( ریفاند )</button>
+    </div>
+  </section>
+</main>
+
+<div class="modal no-print" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <h3 id="modalTitle">جزئیات مبلغ پرداخت شده</h3>
+    <div class="row"><span class="k" id="mBaseLabel"></span><span class="v" id="mBase"></span></div>
+    <div class="row"><span class="k" id="mFeeLabel"></span><span class="v" id="mFee"></span></div>
+    <div class="row total-row"><span class="k">مبلغ نهایی</span><span class="v" id="mTotal"></span></div>
+    <div class="actions"><button type="button" class="btn" id="closeModal">بستن</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status">با موفقیت کپی شد</div>
+
+<script>
+  const FEE_MULTIPLIER = 1.06;
+
+  /* ===================== pure helpers ===================== */
+
+  const FA_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
+
+  const JALALI_MONTHS = [
+    'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+    'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+  ];
+
+  function toPersianDigits(value) {
+    return String(value).replace(/[0-9]/g, d => FA_DIGITS[+d]);
+  }
+
+  function toEnglishDigits(value) {
+    return String(value)
+      .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06F0))
+      .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660));
+  }
+
+  // "۱٬۲۳۴" / "1,234.5" / "۱۲٫۵" -> Number
+  function parseNumber(value) {
+    const normalized = toEnglishDigits(value)
+      .replace(/[٫،]/g, '.')     // Arabic decimal separator / Arabic comma
+      .replace(/[,٬\s]/g, '')    // grouping separators + spaces
+      .trim();
+    if (normalized === '' || !/^-?\d*\.?\d+$/.test(normalized)) return NaN;
+    return Number(normalized);
+  }
+
+  // Integer part grouped with "," then rendered in Persian digits (e.g. ۴۸,۰۳۱,۷۶۶)
+  function formatNumber(value, maxFractionDigits = 0) {
+    if (!Number.isFinite(value)) return '';
+    const negative = value < 0;
+    const abs = Math.abs(value);
+    const fixed = maxFractionDigits > 0
+      ? String(Number(abs.toFixed(maxFractionDigits)))
+      : String(Math.round(abs));
+    const [intPart, fracPart] = fixed.split('.');
+    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const out = fracPart ? grouped + '٫' + fracPart : grouped;
+    return (negative ? '‏-' : '') + toPersianDigits(out);
+  }
+
+  const ONES = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
+  const TEENS = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
+  const TENS = ['', '', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
+  const HUNDREDS = ['', 'صد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
+  const SCALES = ['', 'هزار', 'میلیون', 'میلیارد', 'بیلیون'];
+
+  function threeDigitsToWords(n) {
+    const parts = [];
+    const hundreds = Math.floor(n / 100);
+    const rest = n % 100;
+    if (hundreds) parts.push(HUNDREDS[hundreds]);
+    if (rest >= 10 && rest <= 19) {
+      parts.push(TEENS[rest - 10]);
+    } else {
+      const tens = Math.floor(rest / 10);
+      const ones = rest % 10;
+      if (tens) parts.push(TENS[tens]);
+      if (ones) parts.push(ONES[ones]);
+    }
+    return parts.join(' و ');
+  }
+
+  function numberToPersianWords(value) {
+    const number = Math.round(Number(value));
+    if (!Number.isFinite(number)) return '';
+    if (number === 0) return 'صفر';
+    const sign = number < 0 ? 'منفی ' : '';
+    let rest = Math.abs(number);
+
+    const groups = [];
+    while (rest > 0) {
+      groups.push(rest % 1000);
+      rest = Math.floor(rest / 1000);
+    }
+    if (groups.length > SCALES.length) return '';
+
+    const parts = [];
+    for (let i = groups.length - 1; i >= 0; i--) {
+      if (groups[i] === 0) continue;                     // skip empty scale groups
+      const scale = SCALES[i] ? ' ' + SCALES[i] : '';
+      parts.push(threeDigitsToWords(groups[i]) + scale);
+    }
+    return sign + parts.join(' و ');
+  }
+
+  function computeTotals(productPrice, exchangeRate) {
+    const base = productPrice * exchangeRate;
+    const total = Math.round(base * FEE_MULTIPLIER);
+    const baseRounded = Math.round(base);
+    return { base, baseRounded, fee: total - baseRounded, total };
+  }
+
+  /* ---------- Jalali date helpers ---------- */
+
+  // 33-year cycle rule
+  function isJalaliLeapYear(year) {
+    return [1, 5, 9, 13, 17, 22, 26, 30].includes(((year % 33) + 33) % 33);
+  }
+
+  function daysInJalaliMonth(year, month) {
+    if (month <= 6) return 31;          // فروردین .. شهریور
+    if (month <= 11) return 30;         // مهر .. بهمن
+    return isJalaliLeapYear(year) ? 30 : 29;  // اسفند
+  }
+
+  // اسفند ۳۰ is accepted even in a common year (per spec)
+  function maxAcceptedDay(year, month) {
+    return month === 12 ? 30 : daysInJalaliMonth(year, month);
+  }
+
+  // "۱۲:۲۰" / "12:20" / "9:5" -> {hour, minute} | null
+  function parseTime(value) {
+    const raw = toEnglishDigits(value).trim().replace(/[.٫،]/g, ':');
+    const match = raw.match(/^(\d{1,2}):(\d{1,2})$/);
+    if (!match) return null;
+    const hour = Number(match[1]);
+    const minute = Number(match[2]);
+    if (hour > 23 || minute > 59) return null;
+    return { hour, minute };
+  }
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  // {year, month, day, hour, minute} -> "۳۰ خرداد ۱۴۰۵ ساعت ۱۲:۲۰"
+  function formatJalaliDateTime(parts) {
+    const date = toPersianDigits(parts.day) + ' ' + JALALI_MONTHS[parts.month - 1] + ' ' + toPersianDigits(parts.year);
+    const time = toPersianDigits(pad2(parts.hour) + ':' + pad2(parts.minute));
+    return date + ' ساعت ' + time;
+  }
+
+  // current Jalali Y/M/D straight from Intl — no manual calendar math
+  function currentJalaliDate(date = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', {
+      year: 'numeric', month: 'numeric', day: 'numeric'
+    }).formatToParts(date);
+    const pick = type => Number(parts.find(p => p.type === type).value);
+    return { year: pick('year'), month: pick('month'), day: pick('day') };
+  }
+
+  // returns '' when valid, otherwise a Persian error message
+  function validateJalaliInput(yearRaw, monthValue, dayRaw, timeRaw) {
+    const year = parseNumber(yearRaw);
+    if (!Number.isInteger(year)) return 'سال را به صورت عدد وارد کنید.';
+    if (year < 1200 || year > 1700) return 'سال وارد شده معتبر نیست.';
+
+    const month = Number(monthValue);
+    if (!Number.isInteger(month) || month < 1 || month > 12) return 'ماه را انتخاب کنید.';
+
+    const day = parseNumber(dayRaw);
+    if (!Number.isInteger(day)) return 'روز را به صورت عدد وارد کنید.';
+    const max = maxAcceptedDay(year, month);
+    if (day < 1 || day > max) {
+      return 'روز باید بین ۱ تا ' + toPersianDigits(max) + ' باشد (' + JALALI_MONTHS[month - 1] + ').';
+    }
+
+    if (!parseTime(timeRaw)) return 'ساعت را به شکل ۲۴ ساعته و مانند ۱۲:۲۰ وارد کنید.';
+    return '';
+  }
+
+  //---PURE-END---
+
+  /* ===================== DOM wiring ===================== */
+
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+  const priceInput = $('#productPrice');
+  const rateInput = $('#exchangeRate');
+  const currencySelect = $('#currency');
+  const orderInput = $('#orderNumber');
+  const titleInput = $('#title');
+  const typeInput = $('#type');
+  const urlInput = $('#productUrl');
+  const receipt = $('#receipt');
+  const hint = $('#hint');
+  const modal = $('#modal');
+
+  const oDay = $('#oDay'), oMonth = $('#oMonth'), oYear = $('#oYear'), oTime = $('#oTime');
+  const cDay = $('#cDay'), cMonth = $('#cMonth'), cYear = $('#cYear'), cTime = $('#cTime');
+  const sameAsOrder = $('#sameAsOrder');
+
+  const DEFAULT_TITLE = 'پرداخت درکلیه سایت های بین المللی';
+  const DEFAULT_TYPE = 'خرید اینترنتی';
+
+  let generatedOrder = randomOrderNumber();
+  let current = null;
+
+  function randomOrderNumber() {
+    return String(Math.floor(1000000 + Math.random() * 9000000));
+  }
+
+  function fillMonthOptions(select) {
+    select.innerHTML = '';
+    JALALI_MONTHS.forEach((name, index) => {
+      const option = document.createElement('option');
+      option.value = String(index + 1);
+      option.textContent = name;
+      select.appendChild(option);
+    });
+  }
+
+  function fillDateDefaults() {
+    const now = new Date();
+    const jalali = currentJalaliDate(now);
+    const time = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+    [[oDay, oMonth, oYear, oTime], [cDay, cMonth, cYear, cTime]].forEach(([d, m, y, t]) => {
+      d.value = toPersianDigits(jalali.day);
+      m.value = String(jalali.month);
+      Array.from(m.options).forEach(o => { o.defaultSelected = o.value === String(jalali.month); });
+      y.value = toPersianDigits(jalali.year);
+      t.value = toPersianDigits(time);
+    });
+  }
+
+  function readDateGroup(dayEl, monthEl, yearEl, timeEl) {
+    const time = parseTime(timeEl.value);
+    return {
+      year: parseNumber(yearEl.value),
+      month: Number(monthEl.value),
+      day: parseNumber(dayEl.value),
+      hour: time ? time.hour : 0,
+      minute: time ? time.minute : 0
+    };
+  }
+
+  function syncCompletionFields() {
+    const locked = sameAsOrder.checked;
+    [cDay, cMonth, cYear, cTime].forEach(el => { el.disabled = locked; });
+    if (locked) {
+      cDay.value = oDay.value;
+      cMonth.value = oMonth.value;
+      cYear.value = oYear.value;
+      cTime.value = oTime.value;
+    }
+  }
+
+  /* --- live thousands separators for the exchange-rate field --- */
+  function formatRateField() {
+    const before = rateInput.value;
+    const caret = rateInput.selectionStart ?? before.length;
+    const digitsBeforeCaret = toEnglishDigits(before.slice(0, caret)).replace(/[^0-9]/g, '').length;
+
+    const digits = toEnglishDigits(before).replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '');
+    const formatted = digits ? formatNumber(Number(digits)) : '';
+    if (formatted === before) return;
+    rateInput.value = formatted;
+
+    let seen = 0, pos = formatted.length;
+    for (let i = 0; i < formatted.length; i++) {
+      if (/[۰-۹]/.test(formatted[i])) seen++;
+      if (seen === digitsBeforeCaret) { pos = i + 1; break; }
+    }
+    if (digitsBeforeCaret === 0) pos = 0;
+    try { rateInput.setSelectionRange(pos, pos); } catch (e) { /* ignore */ }
+  }
+
+  function validateAmount(input) {
+    const raw = input.value.trim();
+    if (raw === '') return 'این مقدار را وارد کنید.';
+    const value = parseNumber(raw);
+    if (!Number.isFinite(value)) return 'مقدار وارد شده عددی نیست.';
+    if (value === 0) return 'مقدار نمی‌تواند صفر باشد.';
+    if (value < 0) return 'مقدار نمی‌تواند منفی باشد.';
+    return '';
+  }
+
+  function render() {
+    syncCompletionFields();
+
+    const priceErr = validateAmount(priceInput);
+    const rateErr = validateAmount(rateInput);
+    const orderDateErr = validateJalaliInput(oYear.value, oMonth.value, oDay.value, oTime.value);
+    const doneDateErr = sameAsOrder.checked
+      ? ''
+      : validateJalaliInput(cYear.value, cMonth.value, cDay.value, cTime.value);
+
+    $('#priceErr').textContent = priceErr;
+    $('#rateErr').textContent = rateErr;
+    $('#oDateErr').textContent = orderDateErr;
+    $('#cDateErr').textContent = doneDateErr;
+    priceInput.classList.toggle('invalid', Boolean(priceErr));
+    rateInput.classList.toggle('invalid', Boolean(rateErr));
+    [oDay, oMonth, oYear, oTime].forEach(el => el.classList.toggle('invalid', Boolean(orderDateErr)));
+    [cDay, cMonth, cYear, cTime].forEach(el => el.classList.toggle('invalid', Boolean(doneDateErr)));
+
+    if (priceErr || rateErr || orderDateErr || doneDateErr) {
+      current = null;
+      receipt.hidden = true;
+      hint.hidden = false;
+      return;
+    }
+
+    const productPrice = parseNumber(priceInput.value);
+    const exchangeRate = parseNumber(rateInput.value);
+    const { baseRounded, fee, total } = computeTotals(productPrice, exchangeRate);
+
+    const customOrder = toEnglishDigits(orderInput.value).replace(/\D/g, '');
+    const order = customOrder || generatedOrder;
+    const title = titleInput.value.trim() || DEFAULT_TITLE;
+    const type = typeInput.value.trim() || DEFAULT_TYPE;
+    const currencyLabel = currencySelect.value === 'EUR' ? 'یورو' : 'دلار';
+    const priceText = formatNumber(productPrice, 2) + ' ' + currencyLabel;
+    const rateText = formatNumber(exchangeRate) + ' ریال';
+    const words = numberToPersianWords(total);
+    const url = urlInput.value.trim();
+
+    const orderDate = formatJalaliDateTime(readDateGroup(oDay, oMonth, oYear, oTime));
+    const doneDate = sameAsOrder.checked
+      ? orderDate
+      : formatJalaliDateTime(readDateGroup(cDay, cMonth, cYear, cTime));
+
+    current = { order, title, type, priceText, rateText, orderDate, doneDate, url, total, words };
+
+    $$('[data-order]').forEach(el => el.textContent = toPersianDigits(order));
+    $$('[data-total]').forEach(el => el.textContent = formatNumber(total));
+    $('#vTitle').textContent = title;
+    $('#vType').textContent = type;
+    $('#vDate').textContent = orderDate;
+    $('#vPrice').textContent = priceText;
+    $('#vRate').textContent = rateText;
+    $('#sTitle').textContent = title;
+    $('#sDate').textContent = doneDate;
+    $('#totalWords').textContent = words;
+
+    const linkRow = $('#linkRow');
+    linkRow.hidden = !url;
+    if (url) {
+      const link = $('#productLink');
+      link.textContent = url;
+      link.href = /^https?:\/\//i.test(url) ? url : 'https://' + url;
+    }
+
+    const feePercent = formatNumber((FEE_MULTIPLIER - 1) * 100, 2);
+    $('#mBaseLabel').textContent = 'قیمت محصول × قیمت ارز';
+    $('#mBase').textContent = formatNumber(productPrice, 2) + ' × ' + formatNumber(exchangeRate) + ' = ' + formatNumber(baseRounded) + ' ریال';
+    $('#mFeeLabel').textContent = 'کارمزد و هزینه تبدیل ارز (' + feePercent + '٪)';
+    $('#mFee').textContent = formatNumber(fee) + ' ریال';
+    $('#mTotal').textContent = formatNumber(total) + ' ریال';
+
+    receipt.hidden = false;
+    hint.hidden = true;
+  }
+
+  function receiptAsText() {
+    if (!current) return '';
+    const lines = [
+      'سفارش ' + toPersianDigits(current.order),
+      'عنوان: ' + current.title,
+      'نوع: ' + current.type,
+      'زمان: ' + current.orderDate,
+      'قیمت محصول: ' + current.priceText,
+      'قیمت ارز در زمان خرید: ' + current.rateText,
+      'وضعیت سفارش: تمام شده',
+      'تاریخ انجام سفارش: ' + current.doneDate
+    ];
+    if (current.url) lines.push('لینک محصول: ' + current.url);
+    lines.push(
+      'مجموع هزینه خدمات (ریال): ' + formatNumber(current.total),
+      'مجموع هزینه خدمات به حروف: ' + current.words,
+      'مبلغ پرداخت شده (ریال): ' + formatNumber(current.total),
+      'مبلغ نهایی شامل هزینه تبدیل ارز، کارمزد و موارد دیگر است.'
+    );
+    return lines.join('\n');
+  }
+
+  function showToast(message) {
+    const toast = $('#toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  /* --- events --- */
+  rateInput.addEventListener('input', () => { formatRateField(); render(); });
+  $('#orderForm').addEventListener('input', e => { if (e.target !== rateInput) render(); });
+  $('#orderForm').addEventListener('change', render);
+
+  $('#themeToggle').addEventListener('click', () => {
+    const isDark = document.documentElement.dataset.theme !== 'light';
+    document.documentElement.dataset.theme = isDark ? 'light' : 'dark';
+    $('#themeToggle').textContent = isDark ? 'حالت شب' : 'حالت روز';
+  });
+
+  $('#printBtn').addEventListener('click', () => {
+    if (!current) { showToast('ابتدا اطلاعات سفارش را کامل کنید'); return; }
+    window.print();
+  });
+
+  $('#copyBtn').addEventListener('click', async () => {
+    if (!current) { showToast('ابتدا اطلاعات سفارش را کامل کنید'); return; }
+    const text = receiptAsText();
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (e) {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      try { document.execCommand('copy'); } catch (err) { /* ignore */ }
+      area.remove();
+    }
+    showToast('با موفقیت کپی شد');
+  });
+
+  $('#clearBtn').addEventListener('click', () => {
+    $('#orderForm').reset();
+    generatedOrder = randomOrderNumber();
+    current = null;
+    fillDateDefaults();
+    syncCompletionFields();
+    $$('.err').forEach(el => el.textContent = '');
+    $$('.invalid').forEach(el => el.classList.remove('invalid'));
+    receipt.hidden = true;
+    hint.hidden = false;
+    priceInput.focus();
+  });
+
+  $('#detailsBtn').addEventListener('click', () => { modal.hidden = false; $('#closeModal').focus(); });
+  $('#closeModal').addEventListener('click', () => { modal.hidden = true; });
+  modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.hidden = true; });
+
+  /* --- boot --- */
+  fillMonthOptions(oMonth);
+  fillMonthOptions(cMonth);
+  fillDateDefaults();
+  syncCompletionFields();
+
+  /* sample values matching the reference receipt */
+  priceInput.value = '۲۳';
+  rateInput.value = formatNumber(1962615);
+  render();
+</script>
+</body>
+</html>
